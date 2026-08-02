@@ -1,0 +1,22 @@
+name: yaye-academy
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: yaye_academy
+      POSTGRES_USER: yaye_academy
+      POSTGRES_PASSWORD: yaye_academy
+    ports:
+      - "5432:5432"
+    volumes:
+      - yaye_academy_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yaye_academy -d yaye_academy"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  yaye_academy_postgres_data:
