@@ -45,19 +45,21 @@ enum EnrollmentStatus {
 }
 
 model User {
-  id                String       @id
-  name              String
-  email             String
-  emailVerified     Boolean      @default(false)
-  image             String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  role              UserRole     @default(LEARNER)
-  sessions          Session[]
-  accounts          Account[]
-  createdPrograms   Program[]    @relation("ProgramCreator")
-  instructedCohorts Cohort[]     @relation("CohortInstructor")
-  enrollments       Enrollment[]
+  id                  String              @id
+  name                String
+  email               String
+  emailVerified       Boolean             @default(false)
+  image               String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  role                UserRole            @default(LEARNER)
+  sessions            Session[]
+  accounts            Account[]
+  createdPrograms     Program[]           @relation("ProgramCreator")
+  instructedCohorts   Cohort[]            @relation("CohortInstructor")
+  enrollments         Enrollment[]
+  sentInvitations     PrivateInvitation[] @relation("InvitationSender")
+  acceptedInvitations PrivateInvitation[] @relation("InvitationAcceptor")
 
   @@unique([email])
   @@map("user")
@@ -125,23 +127,45 @@ model Lesson {
 }
 
 model Cohort {
-  id           String       @id @default(cuid())
-  programId    String
-  program      Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
-  instructorId String?
-  instructor   User?        @relation("CohortInstructor", fields: [instructorId], references: [id], onDelete: SetNull)
-  name         String
-  startDate    DateTime
-  endDate      DateTime
-  capacity     Int?
-  status       CohortStatus @default(UPCOMING)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  enrollments  Enrollment[]
+  id                 String              @id @default(cuid())
+  programId          String
+  program            Program             @relation(fields: [programId], references: [id], onDelete: Cascade)
+  instructorId       String?
+  instructor         User?               @relation("CohortInstructor", fields: [instructorId], references: [id], onDelete: SetNull)
+  name               String
+  startDate          DateTime
+  endDate            DateTime
+  capacity           Int?
+  status             CohortStatus        @default(UPCOMING)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  enrollments        Enrollment[]
+  privateInvitations PrivateInvitation[]
 
   @@unique([programId, name])
   @@index([programId, status])
   @@index([instructorId])
+}
+
+model PrivateInvitation {
+  id           String    @id @default(cuid())
+  cohortId     String
+  cohort       Cohort    @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  email        String
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  acceptedById String?
+  acceptedBy   User?     @relation("InvitationAcceptor", fields: [acceptedById], references: [id], onDelete: SetNull)
+  cancelledAt  DateTime?
+  invitedById  String
+  invitedBy    User      @relation("InvitationSender", fields: [invitedById], references: [id], onDelete: Restrict)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([cohortId, createdAt])
+  @@index([email, expiresAt])
+  @@index([invitedById])
 }
 
 model Enrollment {
