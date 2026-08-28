@@ -41,6 +41,16 @@ export async function loginAction(
     return { message: "This account does not have a valid academy role." };
   }
 
+  const returnTo = formData.get("returnTo");
+  if (
+    role === "LEARNER" &&
+    typeof returnTo === "string" &&
+    returnTo.startsWith("/") &&
+    !returnTo.startsWith("//")
+  ) {
+    redirect(returnTo);
+  }
+
   redirect(roleHomePath(role));
 }
 
