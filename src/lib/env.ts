@@ -27,6 +27,10 @@ const serverEnvSchema = z.object({
     .string()
     .min(32, "CHAPA_WEBHOOK_SECRET must be at least 32 characters"),
   CHAPA_MODE: z.enum(["test", "live"]).default("test"),
+  PAYMENT_TEST_ADAPTER: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

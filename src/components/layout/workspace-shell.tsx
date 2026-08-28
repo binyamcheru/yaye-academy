@@ -25,11 +25,13 @@ export function WorkspaceShell({ area, children, user }: WorkspaceShellProps) {
           { href: "/admin/programs", label: "Programs" },
           { href: "/admin/cohorts", label: "Batches" },
           { href: "/admin/enrollments", label: "Invitations" },
+          { href: "/admin/payments", label: "Payments" },
         ]
       : area === "Learner"
         ? [
             { href: homeHref, label: "Overview" },
             { href: "/dashboard/my-learning", label: "My learning" },
+            { href: "/dashboard/payments", label: "Payments" },
           ]
         : [{ href: homeHref, label: "Overview" }];
 

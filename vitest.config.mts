@@ -17,6 +17,7 @@ export default defineConfig({
       CHAPA_SECRET_KEY: "CHASECK_TEST-example-secret-key",
       CHAPA_WEBHOOK_SECRET: "webhook-secret-at-least-32-characters",
       CHAPA_MODE: "test",
+      PAYMENT_TEST_ADAPTER: "false",
     },
     setupFiles: ["./vitest.setup.ts"],
     coverage: {

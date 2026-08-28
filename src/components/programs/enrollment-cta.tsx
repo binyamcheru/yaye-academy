@@ -11,15 +11,44 @@ export async function EnrollmentCta({
   const session = await getCurrentSession();
 
   if (accessType === "PAID") {
-    return (
-      <>
-        <div className="bg-ink px-5 py-4 text-center text-sm font-semibold text-white/70">
-          Paid enrollment opens soon
-        </div>
-        <p className="mt-3 text-xs leading-5 text-muted">
-          Checkout will open after the academy payment provider is connected.
+    if (!session) {
+      return (
+        <Link
+          href={`/login?returnTo=${encodeURIComponent(`/checkout/${programId}`)}`}
+          className="block bg-ink px-5 py-4 text-center text-sm font-semibold text-white hover:bg-yaye-blue"
+        >
+          Log in to continue to payment ↗
+        </Link>
+      );
+    }
+    if (session.user.role !== "LEARNER") {
+      return (
+        <p className="border-l-2 border-yaye-teal bg-yaye-pale px-4 py-3 text-sm text-ink">
+          Paid enrollment is available through a learner account.
         </p>
-      </>
+      );
+    }
+    const enrollment = await findLearnerEnrollmentForProgram(
+      session.user.id,
+      programId,
+    );
+    if (enrollment) {
+      return (
+        <Link
+          href={`/dashboard/programs/${programId}`}
+          className="block bg-ink px-5 py-4 text-center text-sm font-semibold text-white hover:bg-yaye-blue"
+        >
+          Open this program ↗
+        </Link>
+      );
+    }
+    return (
+      <Link
+        href={`/checkout/${programId}`}
+        className="block bg-ink px-5 py-4 text-center text-sm font-semibold text-white hover:bg-yaye-blue"
+      >
+        Continue to payment ↗
+      </Link>
     );
   }
 
