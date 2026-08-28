@@ -20,6 +20,13 @@ const serverEnvSchema = z.object({
     .string()
     .min(32, "BETTER_AUTH_SECRET must be at least 32 characters"),
   BETTER_AUTH_URL: z.string().url().default("http://localhost:3000"),
+  CHAPA_SECRET_KEY: z
+    .string()
+    .min(16, "CHAPA_SECRET_KEY must be a Chapa test or live secret key"),
+  CHAPA_WEBHOOK_SECRET: z
+    .string()
+    .min(32, "CHAPA_WEBHOOK_SECRET must be at least 32 characters"),
+  CHAPA_MODE: z.enum(["test", "live"]).default("test"),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

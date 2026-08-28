@@ -44,6 +44,17 @@ enum EnrollmentStatus {
   CANCELLED
 }
 
+enum PaymentProviderName {
+  CHAPA
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
 model User {
   id                  String              @id
   name                String
@@ -60,6 +71,7 @@ model User {
   enrollments         Enrollment[]
   sentInvitations     PrivateInvitation[] @relation("InvitationSender")
   acceptedInvitations PrivateInvitation[] @relation("InvitationAcceptor")
+  payments            Payment[]
 
   @@unique([email])
   @@map("user")
@@ -84,6 +96,7 @@ model Program {
   createdBy        User              @relation("ProgramCreator", fields: [createdById], references: [id], onDelete: Restrict)
   modules          Module[]
   cohorts          Cohort[]
+  payments         Payment[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
@@ -141,10 +154,56 @@ model Cohort {
   updatedAt          DateTime            @updatedAt
   enrollments        Enrollment[]
   privateInvitations PrivateInvitation[]
+  payments           Payment[]
 
   @@unique([programId, name])
   @@index([programId, status])
   @@index([instructorId])
+}
+
+model Payment {
+  id                String              @id @default(cuid())
+  userId            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  programId         String
+  program           Program             @relation(fields: [programId], references: [id], onDelete: Restrict)
+  cohortId          String
+  cohort            Cohort              @relation(fields: [cohortId], references: [id], onDelete: Restrict)
+  provider          PaymentProviderName @default(CHAPA)
+  merchantReference String              @unique
+  providerReference String?             @unique
+  amount            Decimal             @db.Decimal(10, 2)
+  currency          String
+  status            PaymentStatus       @default(PENDING)
+  providerMode      String
+  checkoutUrl       String?
+  checkoutExpiresAt DateTime
+  failureReason     String?
+  paidAt            DateTime?
+  refundedAt        DateTime?
+  metadata          Json?
+  events            PaymentEvent[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([userId, status])
+  @@index([cohortId, status])
+  @@index([programId, createdAt])
+  @@index([status, createdAt])
+}
+
+model PaymentEvent {
+  id          String              @id @default(cuid())
+  paymentId   String
+  payment     Payment             @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  provider    PaymentProviderName @default(CHAPA)
+  eventKey    String              @unique
+  eventType   String
+  payload     Json?
+  processedAt DateTime?
+  createdAt   DateTime            @default(now())
+
+  @@index([paymentId, createdAt])
 }
 
 model PrivateInvitation {
