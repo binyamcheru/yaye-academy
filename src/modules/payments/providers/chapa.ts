@@ -81,7 +81,11 @@ export class ChapaPaymentProvider implements PaymentProvider {
     private readonly fetcher: typeof fetch = fetch,
   ) {}
 
-  private async request(url: string, init?: RequestInit) {
+  private async request(
+    url: string,
+    init?: RequestInit,
+    pendingWhenNotFound = false,
+  ) {
     let response: Response;
     try {
       response = await this.fetcher(url, {
@@ -102,10 +106,14 @@ export class ChapaPaymentProvider implements PaymentProvider {
     const body: unknown = await response.json().catch(() => null);
     if (!response.ok) {
       throw new PaymentProviderError(
-        response.status >= 500
-          ? "Chapa is temporarily unavailable. The payment remains pending."
-          : "Chapa rejected the payment request.",
-        response.status >= 400 && response.status < 500,
+        pendingWhenNotFound && response.status === 404
+          ? "Chapa has not confirmed this payment yet."
+          : response.status >= 500
+            ? "Chapa is temporarily unavailable. The payment remains pending."
+            : "Chapa rejected the payment request.",
+        response.status >= 400 &&
+          response.status < 500 &&
+          !(pendingWhenNotFound && response.status === 404),
       );
     }
     return body;
@@ -152,6 +160,8 @@ export class ChapaPaymentProvider implements PaymentProvider {
   async verifyPayment(merchantReference: string): Promise<VerifiedPayment> {
     const body = await this.request(
       `${chapaApiUrl}/transaction/verify/${encodeURIComponent(merchantReference)}`,
+      undefined,
+      true,
     );
     const parsed = verifyResponseSchema.safeParse(body);
     if (!parsed.success) {

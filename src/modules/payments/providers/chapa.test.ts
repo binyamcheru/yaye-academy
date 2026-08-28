@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
 
 import { ChapaPaymentProvider } from "@/modules/payments/providers/chapa";
+import { PaymentProviderError } from "@/modules/payments/providers/types";
 
 vi.mock("server-only", () => ({}));
 
@@ -109,6 +110,20 @@ describe("Chapa payment provider", () => {
       paymentMethod: "telebirr",
       failureReason: undefined,
     });
+  });
+
+  it("keeps an unconfirmed verification response pending", async () => {
+    const provider = new ChapaPaymentProvider(
+      "secret",
+      "webhook-secret-at-least-32-characters",
+      (() => response({ status: "failed", data: null }, 404)) as typeof fetch,
+    );
+    const error = await provider
+      .verifyPayment("yaye_reference")
+      .catch((caught: unknown) => caught);
+    expect(error).toBeInstanceOf(PaymentProviderError);
+    expect((error as PaymentProviderError).definitive).toBe(false);
+    expect((error as Error).message).toMatch(/not confirmed/i);
   });
 
   it("verifies signed webhook payloads and rejects tampering", () => {
