@@ -12,6 +12,7 @@ import {
 
 type AuthFormProps = Readonly<{
   mode: "login" | "register";
+  returnTo?: string;
 }>;
 
 const initialState: AuthFormState = {};
@@ -41,7 +42,7 @@ function SubmitButton({ label }: Readonly<{ label: string }>) {
   );
 }
 
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm({ mode, returnTo }: AuthFormProps) {
   const isLogin = mode === "login";
   const [state, formAction] = useActionState(
     isLogin ? loginAction : registerAction,
@@ -65,6 +66,9 @@ export function AuthForm({ mode }: AuthFormProps) {
       </div>
 
       <form action={formAction} className="mt-7 space-y-5" noValidate>
+        {isLogin && returnTo && (
+          <input type="hidden" name="returnTo" value={returnTo} />
+        )}
         {!isLogin && (
           <label className="block">
             <span className="auth-label">Full name</span>

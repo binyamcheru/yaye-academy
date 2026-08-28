@@ -24,6 +24,7 @@ export function WorkspaceShell({ area, children, user }: WorkspaceShellProps) {
           { href: homeHref, label: "Overview" },
           { href: "/admin/programs", label: "Programs" },
           { href: "/admin/cohorts", label: "Batches" },
+          { href: "/admin/enrollments", label: "Invitations" },
         ]
       : area === "Learner"
         ? [
