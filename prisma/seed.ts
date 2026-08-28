@@ -191,7 +191,7 @@ const demoPrograms = [
     accessType: ProgramAccessType.PRIVATE,
     price: null,
     durationWeeks: 2,
-    status: ProgramStatus.DRAFT,
+    status: ProgramStatus.PUBLISHED,
     learningOutcomes: [
       "Apply safer account and credential practices",
       "Recognize common social-engineering risks",
