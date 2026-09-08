@@ -17,6 +17,9 @@ jobs:
       DEFAULT_TIMEZONE: Africa/Addis_Ababa
       BETTER_AUTH_SECRET: yaye-academy-ci-secret-at-least-32-characters
       BETTER_AUTH_URL: http://localhost:3000
+      CHAPA_SECRET_KEY: ci-placeholder-chapa-key-not-for-provider-use
+      CHAPA_WEBHOOK_SECRET: ci-placeholder-webhook-secret-at-least-32-characters
+      CHAPA_MODE: test
 
     services:
       postgres:

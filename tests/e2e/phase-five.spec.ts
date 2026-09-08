@@ -11,7 +11,10 @@ async function login(page: import("@playwright/test").Page) {
   await page.goto("/login");
   await page.getByLabel("Email address").fill("learner@example.com");
   await page.getByLabel("Password").fill("Learner1234!");
-  await page.getByRole("button", { name: "Enter workspace" }).click();
+  await Promise.all([
+    page.waitForURL(/\/dashboard$/),
+    page.getByRole("button", { name: "Enter workspace" }).click(),
+  ]);
 }
 
 test("verified Chapa success enrolls once and failed payment enrolls never", async ({
