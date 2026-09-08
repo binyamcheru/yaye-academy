@@ -58,7 +58,7 @@ test.describe("seeded role access", () => {
       email: "instructor@example.com",
       password: "Instructor1234!",
       path: "/instructor",
-      heading: /teaching desk is ready/i,
+      heading: /welcome, yaye/i,
     },
   ] as const;
 

@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProgressMeter } from "@/components/learner/progress-meter";
+import { LocalDateTime } from "@/components/shared/local-date-time";
 import { requireRole } from "@/modules/auth/session";
+import { getLearnerAnnouncements } from "@/modules/communication/service";
 import { getLearnerProgram } from "@/modules/enrollments/service";
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -17,7 +19,10 @@ export default async function LearnerProgramPage({
 }: Readonly<{ params: Promise<{ programId: string }> }>) {
   const session = await requireRole("LEARNER");
   const { programId } = await params;
-  const enrollment = await getLearnerProgram(session.user.id, programId);
+  const [enrollment, communication] = await Promise.all([
+    getLearnerProgram(session.user.id, programId),
+    getLearnerAnnouncements(session.user.id, programId),
+  ]);
   if (!enrollment) notFound();
   const program = enrollment.cohort.program;
   const nextLesson =
@@ -90,6 +95,24 @@ export default async function LearnerProgramPage({
         </dl>
       </section>
 
+      <nav
+        className="mt-8 grid gap-4 sm:grid-cols-2"
+        aria-label="Program tools"
+      >
+        <Link
+          href={`/dashboard/programs/${program.id}/learn`}
+          className="border-t-2 border-ink bg-white px-5 py-5 font-semibold text-ink hover:bg-yaye-pale/50"
+        >
+          Curriculum →
+        </Link>
+        <Link
+          href={`/dashboard/programs/${program.id}/sessions`}
+          className="border-t-2 border-ink bg-white px-5 py-5 font-semibold text-ink hover:bg-yaye-pale/50"
+        >
+          Live sessions →
+        </Link>
+      </nav>
+
       <section className="mt-10">
         <div className="flex items-end justify-between gap-5 border-b border-ink/15 pb-5">
           <div>
@@ -129,6 +152,40 @@ export default async function LearnerProgramPage({
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <div className="border-b border-ink/15 pb-5">
+          <p className="font-mono text-[0.62rem] tracking-[0.12em] text-yaye-blue uppercase">
+            Batch updates
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold text-ink">
+            Recent announcements
+          </h2>
+        </div>
+        <div className="divide-y divide-ink/10 bg-white px-5 sm:px-6">
+          {communication?.announcements.slice(0, 5).map((announcement) => (
+            <article key={announcement.id} className="py-5">
+              <div className="flex flex-wrap justify-between gap-3">
+                <h3 className="font-semibold text-ink">{announcement.title}</h3>
+                <span className="text-xs text-muted">
+                  <LocalDateTime value={announcement.createdAt} />
+                </span>
+              </div>
+              <p className="mt-2 text-sm leading-6 whitespace-pre-wrap text-muted">
+                {announcement.body}
+              </p>
+              <p className="mt-2 text-xs text-muted">
+                {announcement.author.name}
+              </p>
+            </article>
+          ))}
+          {!communication?.announcements.length && (
+            <p className="py-8 text-sm text-muted">
+              No announcements have been published for this batch.
+            </p>
+          )}
         </div>
       </section>
     </div>

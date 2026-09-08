@@ -13,8 +13,9 @@ The goal is to build a complete but controlled first version of an online traini
 
 **Phase 0 — Foundation**, **Phase 1 — Authentication + roles**, **Phase 2 —
 Programs + curriculum + batches**, **Phase 3 — Free enrollment + learner
-dashboard**, **Phase 4 — Private enrollment**, and **Phase 5 — Paid enrollment**
-are implemented. The repository now includes:
+dashboard**, **Phase 4 — Private enrollment**, **Phase 5 — Paid enrollment**,
+and **Phase 6 — Live sessions, announcements, and notifications** are
+implemented. The repository now includes:
 
 - Next.js App Router with strict TypeScript
 - Tailwind CSS and branded public/auth/workspace layouts
@@ -42,12 +43,18 @@ are implemented. The repository now includes:
 - secure, expiring, single-use private invitations with intended-email checks
 - Chapa-hosted paid checkout with signed webhooks and server verification
 - idempotent payment-success enrollment plus learner/admin payment history
+- assigned-instructor live-session scheduling with external meeting and resource
+  links
+- cohort announcements, transactional learner notifications, and unread/read
+  state
+- enrollment-protected session and announcement views with learner-dashboard
+  summaries
 
 The authentication schema supports email-verification records, but outbound
 email delivery is intentionally deferred until an email provider is selected.
 Private invitation delivery uses a development copy-link state until an email
-provider is selected. Phase 6 (sessions, announcements, and notifications) is
-the next product slice.
+provider is selected. Phase 7 (lesson Q&A) is the next product slice and can
+reuse the notification foundation delivered in Phase 6.
 
 ## Local development
 

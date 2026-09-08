@@ -31,9 +31,13 @@ export function WorkspaceShell({ area, children, user }: WorkspaceShellProps) {
         ? [
             { href: homeHref, label: "Overview" },
             { href: "/dashboard/my-learning", label: "My learning" },
+            { href: "/dashboard/notifications", label: "Notifications" },
             { href: "/dashboard/payments", label: "Payments" },
           ]
-        : [{ href: homeHref, label: "Overview" }];
+        : [
+            { href: homeHref, label: "Overview" },
+            { href: "/instructor/programs", label: "Programs" },
+          ];
 
   return (
     <div className="min-h-screen bg-workspace md:grid md:grid-cols-[17rem_1fr]">
