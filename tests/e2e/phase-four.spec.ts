@@ -17,7 +17,11 @@ async function login(
   await page.goto("/login");
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Enter workspace" }).click();
+  const roleHome = email === "admin@example.com" ? "/admin" : "/dashboard";
+  await Promise.all([
+    page.waitForURL(new RegExp(`${roleHome}$`)),
+    page.getByRole("button", { name: "Enter workspace" }).click(),
+  ]);
 }
 
 test("admin invitation is restricted to the intended learner and single use", async ({
