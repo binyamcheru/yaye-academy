@@ -4,6 +4,7 @@ import { hashPassword } from "better-auth/crypto";
 import {
   CohortStatus,
   EnrollmentStatus,
+  NotificationType,
   PrismaClient,
   ProgramAccessType,
   ProgramLevel,
@@ -358,7 +359,7 @@ async function upsertDemoProgram(
     }
   }
 
-  await prisma.cohort.upsert({
+  const cohort = await prisma.cohort.upsert({
     where: {
       programId_name: {
         programId: program.id,
@@ -380,6 +381,54 @@ async function upsertDemoProgram(
       endDate: demoProgram.cohort.endDate,
       capacity: demoProgram.cohort.capacity,
       status: demoProgram.cohort.status,
+    },
+  });
+
+  const sessionStartsAt = new Date(
+    demoProgram.cohort.startDate.getTime() + 2 * 24 * 60 * 60 * 1000,
+  );
+  const sessionEndsAt = new Date(sessionStartsAt.getTime() + 90 * 60 * 1000);
+  await prisma.liveSession.upsert({
+    where: { id: `seed-session-${demoProgram.slug}` },
+    update: {
+      cohortId: cohort.id,
+      title: "Batch orientation and learning workflow",
+      description:
+        "Meet the instructor, review the weekly rhythm, and prepare the tools used throughout the program.",
+      startsAt: sessionStartsAt,
+      endsAt: sessionEndsAt,
+      meetingUrl: "https://meet.example.com/yaye-academy-preview",
+      resourceUrl: "https://example.com/yaye-academy/session-resources",
+      createdById: instructorId,
+    },
+    create: {
+      id: `seed-session-${demoProgram.slug}`,
+      cohortId: cohort.id,
+      title: "Batch orientation and learning workflow",
+      description:
+        "Meet the instructor, review the weekly rhythm, and prepare the tools used throughout the program.",
+      startsAt: sessionStartsAt,
+      endsAt: sessionEndsAt,
+      meetingUrl: "https://meet.example.com/yaye-academy-preview",
+      resourceUrl: "https://example.com/yaye-academy/session-resources",
+      createdById: instructorId,
+    },
+  });
+
+  await prisma.announcement.upsert({
+    where: { id: `seed-announcement-${demoProgram.slug}` },
+    update: {
+      cohortId: cohort.id,
+      authorId: instructorId,
+      title: "Welcome to your batch workspace",
+      body: "Your curriculum and batch schedule are ready. Review the first module before the orientation session and bring any setup questions.",
+    },
+    create: {
+      id: `seed-announcement-${demoProgram.slug}`,
+      cohortId: cohort.id,
+      authorId: instructorId,
+      title: "Welcome to your batch workspace",
+      body: "Your curriculum and batch schedule are ready. Review the first module before the orientation session and bring any setup questions.",
     },
   });
 
@@ -413,7 +462,7 @@ async function main() {
   const sara = users.get("sara@example.com");
   const gitBatch = await prisma.cohort.findFirst({
     where: { program: { slug: "git-and-github-fundamentals" } },
-    select: { id: true },
+    select: { id: true, programId: true },
   });
 
   if (!sara || !gitBatch) {
@@ -434,6 +483,26 @@ async function main() {
   console.log(
     "Seeded enrollment: sara@example.com → Git & GitHub Fundamentals",
   );
+
+  await prisma.notification.upsert({
+    where: { id: "seed-notification-git-session-sara" },
+    update: {
+      userId: sara.id,
+      type: NotificationType.LIVE_SESSION_CREATED,
+      title: "New live session: Batch orientation and learning workflow",
+      body: "Git & GitHub Fundamentals · October 2026 Batch",
+      href: `/dashboard/programs/${gitBatch.programId}/sessions`,
+      readAt: null,
+    },
+    create: {
+      id: "seed-notification-git-session-sara",
+      userId: sara.id,
+      type: NotificationType.LIVE_SESSION_CREATED,
+      title: "New live session: Batch orientation and learning workflow",
+      body: "Git & GitHub Fundamentals · October 2026 Batch",
+      href: `/dashboard/programs/${gitBatch.programId}/sessions`,
+    },
+  });
 }
 
 main()

@@ -69,7 +69,9 @@ test("learner can enroll, complete a lesson, and see progress", async ({
     ).toHaveAttribute("aria-valuenow", "33");
 
     await page.goto("/dashboard");
-    await expect(page.getByText("Git & GitHub Fundamentals")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Git & GitHub Fundamentals" }),
+    ).toBeVisible();
     await expect(page.getByText("1 of 3 lessons complete")).toBeVisible();
 
     await page.goto("/programs/git-and-github-fundamentals");
