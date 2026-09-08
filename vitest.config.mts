@@ -14,6 +14,10 @@ export default defineConfig({
         "postgresql://yaye_academy:yaye_academy@localhost:5432/yaye_academy?schema=public",
       BETTER_AUTH_SECRET: "yaye-academy-test-secret-at-least-32-characters",
       BETTER_AUTH_URL: "http://localhost:3000",
+      CHAPA_SECRET_KEY: "CHASECK_TEST-example-secret-key",
+      CHAPA_WEBHOOK_SECRET: "webhook-secret-at-least-32-characters",
+      CHAPA_MODE: "test",
+      PAYMENT_TEST_ADAPTER: "false",
     },
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
