@@ -37,6 +37,7 @@ export function WorkspaceShell({ area, children, user }: WorkspaceShellProps) {
         : [
             { href: homeHref, label: "Overview" },
             { href: "/instructor/programs", label: "Programs" },
+            { href: "/instructor/questions", label: "Questions" },
           ];
 
   return (

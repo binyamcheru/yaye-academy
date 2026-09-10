@@ -47,6 +47,13 @@ export default async function InstructorProgramPage({
             description:
               "Publish an update to eligible learners in an assigned batch.",
           },
+          {
+            href: "/instructor/questions",
+            eyebrow: "Instructor office hours",
+            title: "Lesson questions",
+            description:
+              "Answer learner questions and identify the accepted explanation.",
+          },
         ].map((item) => (
           <Link
             key={item.href}

@@ -58,6 +58,8 @@ enum PaymentStatus {
 enum NotificationType {
   LIVE_SESSION_CREATED
   ANNOUNCEMENT_PUBLISHED
+  QUESTION_ANSWERED
+  ANSWER_ACCEPTED
 }
 
 model User {
@@ -80,6 +82,8 @@ model User {
   createdLiveSessions LiveSession[]        @relation("LiveSessionCreator")
   authoredAnnouncements Announcement[]     @relation("AnnouncementAuthor")
   notifications       Notification[]       @relation("NotificationRecipient")
+  questions           Question[]           @relation("QuestionAuthor")
+  answers             Answer[]             @relation("AnswerAuthor")
 
   @@unique([email])
   @@map("user")
@@ -141,6 +145,7 @@ model Lesson {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   progressRecords LessonProgress[]
+  questions       Question[]
 
   @@unique([moduleId, order])
   @@unique([moduleId, slug])
@@ -165,6 +170,7 @@ model Cohort {
   payments           Payment[]
   liveSessions       LiveSession[]
   announcements      Announcement[]
+  questions          Question[]
 
   @@unique([programId, name])
   @@index([programId, status])
@@ -219,6 +225,40 @@ model Notification {
   createdAt DateTime         @default(now())
 
   @@index([userId, readAt, createdAt])
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  cohortId  String
+  cohort    Cohort   @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("QuestionAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  answers   Answer[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([lessonId, cohortId, createdAt])
+  @@index([cohortId, createdAt])
+  @@index([authorId])
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation("AnswerAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  body       String
+  isAccepted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([questionId, createdAt])
+  @@index([authorId])
 }
 
 model Payment {

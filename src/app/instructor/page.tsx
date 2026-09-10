@@ -6,13 +6,19 @@ import {
   listInstructorPrograms,
   listUpcomingInstructorSessions,
 } from "@/modules/communication/service";
+import { listInstructorQuestions } from "@/modules/qna/service";
 
 export default async function InstructorDashboardPage() {
   const session = await requireRole("INSTRUCTOR");
-  const [cohorts, sessions] = await Promise.all([
+  const [cohorts, sessions, questions] = await Promise.all([
     listInstructorPrograms(session.user.id),
     listUpcomingInstructorSessions(session.user.id),
+    listInstructorQuestions(session.user.id),
   ]);
+  const unansweredCount = questions.filter(
+    (question) =>
+      !question.answers.some((answer) => answer.author.role === "INSTRUCTOR"),
+  ).length;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -28,6 +34,24 @@ export default async function InstructorDashboardPage() {
           the next live session visible.
         </p>
       </header>
+
+      <dl className="mt-7 grid border-y border-ink/15 bg-white sm:grid-cols-3">
+        {[
+          ["Assigned batches", String(cohorts.length)],
+          ["Upcoming sessions", String(sessions.length)],
+          ["Unanswered questions", String(unansweredCount)],
+        ].map(([term, value]) => (
+          <div
+            key={term}
+            className="border-ink/15 px-5 py-5 sm:border-r sm:last:border-r-0"
+          >
+            <dt className="font-mono text-[0.6rem] tracking-[0.1em] text-muted uppercase">
+              {term}
+            </dt>
+            <dd className="mt-2 text-xl font-semibold text-ink">{value}</dd>
+          </div>
+        ))}
+      </dl>
 
       <section className="mt-9 grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div>
